@@ -166,6 +166,49 @@ window.addEventListener('scroll', () => {
   }
 });
 
+// --- Scroll Timeline ---
+const tlSection = document.querySelector('.timeline-section');
+const tlViewport = document.querySelector('.timeline-viewport');
+const tlCards = document.querySelectorAll('.tl-card');
+const tlFill = document.getElementById('timeline-fill');
+
+if (tlSection && tlViewport && tlCards.length) {
+  const totalSteps = tlCards.length;
+
+  window.addEventListener('scroll', () => {
+    const rect = tlSection.getBoundingClientRect();
+    const sectionH = tlSection.offsetHeight;
+    const viewH = window.innerHeight;
+
+    // How far we've scrolled through the section (0 to 1)
+    const scrolled = Math.max(0, -rect.top) / (sectionH - viewH);
+    const progress = Math.min(Math.max(scrolled, 0), 1);
+
+    // Update progress bar
+    if (tlFill) tlFill.style.width = `${progress * 100}%`;
+
+    // Which card is active
+    const activeIndex = Math.min(Math.floor(progress * totalSteps), totalSteps - 1);
+
+    // Slide the viewport horizontally
+    const cardWidth = 420; // card width + gap
+    const offset = activeIndex * cardWidth;
+    const viewportWidth = tlViewport.parentElement.offsetWidth;
+    const centerOffset = viewportWidth / 2 - 210; // center the active card
+    tlViewport.style.transform = `translateX(${centerOffset - offset}px)`;
+
+    // Update card states
+    tlCards.forEach((card, i) => {
+      card.classList.remove('active', 'prev');
+      if (i === activeIndex) {
+        card.classList.add('active');
+      } else if (i < activeIndex) {
+        card.classList.add('prev');
+      }
+    });
+  });
+}
+
 // --- Hero Title Animation ---
 window.addEventListener('load', () => {
   setTimeout(() => {

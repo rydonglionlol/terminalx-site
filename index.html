@@ -271,35 +271,75 @@
         <div class="photo-break-overlay"></div>
     </div>
 
-    <!-- How It Works -->
-    <section class="section section-alt" id="process">
-        <div class="container">
-            <div class="section-label reveal-up">04 / How It Works</div>
-            <h2 class="section-title-center reveal-text">Three simple <em>steps</em></h2>
-            <div class="process-timeline">
-                <div class="process-step reveal-up">
-                    <div class="process-num">01</div>
-                    <div class="process-content">
-                        <h3>Pick Up Your Glasses</h3>
-                        <p>Grab a pair of Aero glasses from any rental desk in the terminal. They're pre-charged and ready to go. Just put them on — no setup needed.</p>
+    <!-- Interactive Scroll Timeline -->
+    <section class="timeline-section" id="process">
+        <div class="timeline-sticky">
+            <div class="timeline-header">
+                <div class="section-label" style="color: var(--accent); margin-bottom: 0;">04 / Your Journey</div>
+            </div>
+            <div class="timeline-progress-bar">
+                <div class="timeline-progress-fill" id="timeline-fill"></div>
+            </div>
+            <div class="timeline-viewport">
+                <!-- Step 1 -->
+                <div class="tl-card" data-step="0">
+                    <div class="tl-card-inner">
+                        <div class="tl-num">01</div>
+                        <div class="tl-img-wrap">
+                            <img src="https://images.unsplash.com/photo-1521727284936-cf1dbff643e8?w=600&q=80" alt="Airport rental desk" class="tl-img">
+                        </div>
+                        <h3 class="tl-title">Pick Up Your Glasses</h3>
+                        <p class="tl-desc">Walk up to any Aero rental desk in the terminal. Grab a pair of pre-charged glasses. Put them on — no setup, no account, no app download.</p>
+                        <div class="tl-tag">&#9201; Takes 30 seconds</div>
                     </div>
-                    <div class="process-line"></div>
                 </div>
-                <div class="process-step reveal-up" data-delay="1">
-                    <div class="process-num">02</div>
-                    <div class="process-content">
-                        <h3>Scan & Navigate</h3>
-                        <p>The glasses detect your boarding pass, pull up your flight info, and project 3D green arrows onto the ground leading you to your gate. Ask Aero anything along the way.</p>
+                <!-- Step 2 -->
+                <div class="tl-card" data-step="1">
+                    <div class="tl-card-inner">
+                        <div class="tl-num">02</div>
+                        <div class="tl-img-wrap">
+                            <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600&q=80" alt="Scanning boarding pass" class="tl-img">
+                        </div>
+                        <h3 class="tl-title">Scan Your Boarding Pass</h3>
+                        <p class="tl-desc">The built-in camera detects your boarding pass barcode automatically. Your flight, gate, seat, and boarding time appear right in your view.</p>
+                        <div class="tl-tag">&#128203; Auto-detected</div>
                     </div>
-                    <div class="process-line"></div>
                 </div>
-                <div class="process-step reveal-up" data-delay="2">
-                    <div class="process-num">03</div>
-                    <div class="process-content">
-                        <h3>Return at Your Gate</h3>
-                        <p>When you arrive at your gate, drop the glasses at the nearest return desk. They'll be cleaned, charged, and ready for the next traveler.</p>
+                <!-- Step 3 -->
+                <div class="tl-card" data-step="2">
+                    <div class="tl-card-inner">
+                        <div class="tl-num">03</div>
+                        <div class="tl-img-wrap">
+                            <img src="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=600&q=80" alt="AR navigation arrows" class="tl-img">
+                        </div>
+                        <h3 class="tl-title">Follow the Arrows</h3>
+                        <p class="tl-desc">3D green holographic arrows appear on the ground ahead of you. They curve around corners, change direction at turns, and guide you step-by-step to your gate.</p>
+                        <div class="tl-tag">&#10132; Real-time AR</div>
                     </div>
-                    <div class="process-line"></div>
+                </div>
+                <!-- Step 4 -->
+                <div class="tl-card" data-step="3">
+                    <div class="tl-card-inner">
+                        <div class="tl-num">04</div>
+                        <div class="tl-img-wrap">
+                            <img src="https://images.unsplash.com/photo-1540339832862-474599807836?w=600&q=80" alt="Voice assistant" class="tl-img">
+                        </div>
+                        <h3 class="tl-title">Ask Aero Anything</h3>
+                        <p class="tl-desc">"Hey Aero, where's the nearest coffee shop?" — get instant spoken answers. Bathrooms, restaurants, WiFi, lounges — Aero knows it all.</p>
+                        <div class="tl-tag">&#127908; Voice AI</div>
+                    </div>
+                </div>
+                <!-- Step 5 -->
+                <div class="tl-card" data-step="4">
+                    <div class="tl-card-inner">
+                        <div class="tl-num">05</div>
+                        <div class="tl-img-wrap">
+                            <img src="https://images.unsplash.com/photo-1436491865332-7a61a109db05?w=600&q=80" alt="Return desk" class="tl-img">
+                        </div>
+                        <h3 class="tl-title">Return & Board</h3>
+                        <p class="tl-desc">Arrived at your gate. Drop the glasses at the nearest return desk — they're everywhere. The glasses get cleaned, charged, and recycled for the next traveler.</p>
+                        <div class="tl-tag">&#9992; Bon voyage!</div>
+                    </div>
                 </div>
             </div>
         </div>
