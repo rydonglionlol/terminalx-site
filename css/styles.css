@@ -610,7 +610,8 @@ em { font-family: var(--serif); font-style: italic; color: var(--accent-bright);
 @media (max-width: 600px) { .facts-grid { grid-template-columns: 1fr; } }
 
 /* ========== TEAM ========== */
-.team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; margin-top: 64px; }
+.team-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 28px; margin-top: 64px; }
+@media (max-width: 1024px) { .team-grid { grid-template-columns: repeat(3, 1fr); } }
 .team-card {
   text-align: center; padding: 48px 24px;
   border: 1px solid var(--line); border-radius: 16px;

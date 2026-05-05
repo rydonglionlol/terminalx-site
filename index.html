@@ -12,6 +12,38 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <!-- Password Gate -->
+    <div id="password-gate" style="position:fixed;inset:0;z-index:99999;background:#0a0a0f;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;">
+        <div style="text-align:center;max-width:360px;padding:24px;">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#5b8def" stroke-width="1.5" stroke-linejoin="round" style="margin-bottom:24px;"><path d="M4 12 L12 6 L20 12 L12 18Z"/></svg>
+            <h2 style="color:white;font-family:'Space Grotesk',sans-serif;font-size:1.5rem;margin-bottom:8px;">TerminalX</h2>
+            <p style="color:#8a8780;font-size:0.85rem;margin-bottom:24px;">Enter password to continue</p>
+            <input id="pw-input" type="password" placeholder="Password" autofocus
+                style="width:100%;padding:14px 20px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:white;font-size:14px;outline:none;margin-bottom:12px;font-family:inherit;">
+            <button id="pw-btn"
+                style="width:100%;padding:14px;border-radius:12px;border:none;background:#5b8def;color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">
+                Enter
+            </button>
+            <p id="pw-error" style="color:#fb7185;font-size:12px;margin-top:10px;display:none;">Wrong password</p>
+        </div>
+    </div>
+    <script>
+    (function(){
+        if(sessionStorage.getItem('tx_auth')==='1'){document.getElementById('password-gate').style.display='none';return;}
+        document.getElementById('pw-btn').onclick=check;
+        document.getElementById('pw-input').onkeydown=function(e){if(e.key==='Enter')check();};
+        function check(){
+            if(document.getElementById('pw-input').value==='crewl'){
+                sessionStorage.setItem('tx_auth','1');
+                document.getElementById('password-gate').style.display='none';
+            }else{
+                document.getElementById('pw-error').style.display='block';
+                document.getElementById('pw-input').style.borderColor='#fb7185';
+            }
+        }
+    })();
+    </script>
+
     <!-- Loader -->
     <div class="loader" id="loader">
         <div class="loader-inner">
@@ -495,6 +527,10 @@
                     <div class="team-avatar" style="--avatar-color: #ec4899">L</div>
                     <h3>Lizzie</h3>
                 </div>
+                <div class="team-card reveal-up" data-delay="4">
+                    <div class="team-avatar" style="--avatar-color: #8b5cf6">C</div>
+                    <h3>Chase</h3>
+                </div>
             </div>
         </div>
     </section>
@@ -527,7 +563,7 @@
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2026 TerminalX. PBL Project.</p>
-                <p>Built with passion by Ryan, William, Esteban & Lizzie</p>
+                <p>Built with passion by Ryan, William, Esteban, Lizzie & Chase</p>
             </div>
         </div>
     </footer>
