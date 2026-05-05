@@ -325,6 +325,118 @@ em { font-family: var(--serif); font-style: italic; color: var(--accent-bright);
 .stat-label { display: block; font-size: 0.85rem; color: var(--text-dim); line-height: 1.6; margin-top: 12px; max-width: 250px; margin-inline: auto; }
 @media (max-width: 768px) { .stats-row { grid-template-columns: 1fr; gap: 48px; } }
 
+/* ========== PHOTO BREAK ========== */
+.photo-break {
+  position: relative; height: 40vh; min-height: 280px; overflow: hidden;
+}
+.photo-break-img {
+  width: 100%; height: 100%; object-fit: cover;
+  transform: scale(1.05);
+  transition: transform 8s ease;
+}
+.photo-break:hover .photo-break-img { transform: scale(1.1); }
+.photo-break-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, var(--bg) 0%, transparent 30%, transparent 70%, var(--bg-alt) 100%);
+}
+
+/* ========== GLASSES SECTION ========== */
+.glasses-specs {
+  display: flex; gap: 32px; margin-top: 32px; padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.spec-item { }
+.spec-val { display: block; font-family: var(--display); font-size: 1.5rem; font-weight: 700; color: var(--accent-bright); }
+.spec-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+.glasses-visual {
+  position: relative; border-radius: 20px; overflow: hidden;
+  aspect-ratio: 4/3;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+}
+.glasses-img { width: 100%; height: 100%; object-fit: cover; }
+.glasses-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 20%, rgba(0,0,0,0.5));
+}
+.glasses-hud-item {
+  position: absolute; padding: 8px 16px; border-radius: 10px;
+  background: rgba(14,18,32,0.7); backdrop-filter: blur(8px);
+  border: 1px solid rgba(91,141,239,0.2);
+  font-size: 13px; font-weight: 600; color: var(--green);
+  animation: hudFloat 3s ease-in-out infinite;
+}
+.glasses-hud-1 { top: 20%; left: 10%; }
+.glasses-hud-2 { top: 40%; right: 8%; animation-delay: 0.8s; }
+.glasses-hud-3 { bottom: 15%; left: 15%; animation-delay: 1.6s; color: var(--accent-bright); }
+@keyframes hudFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+.glasses-features-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 80px; }
+.gf-card {
+  padding: 32px 24px; border: 1px solid var(--line); border-radius: 16px;
+  transition: border-color 0.3s, transform 0.4s var(--ease), background 0.3s;
+}
+.gf-card:hover { border-color: rgba(91,141,239,0.2); transform: translateY(-3px); background: rgba(91,141,239,0.03); }
+.gf-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: rgba(91,141,239,0.08); color: var(--accent);
+  display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
+}
+.gf-card h4 { font-family: var(--display); font-size: 0.95rem; font-weight: 600; color: white; margin-bottom: 8px; }
+.gf-card p { font-size: 0.8rem; color: var(--text-dim); line-height: 1.7; }
+@media (max-width: 1024px) { .glasses-features-row { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .glasses-features-row { grid-template-columns: 1fr; } .glasses-specs { flex-wrap: wrap; gap: 24px; } }
+
+/* ========== PRICING ========== */
+.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 64px; }
+.pricing-card {
+  padding: 40px 32px; border: 1px solid var(--line); border-radius: 20px;
+  display: flex; flex-direction: column;
+  transition: border-color 0.3s, transform 0.4s var(--ease), background 0.3s;
+}
+.pricing-card:hover { border-color: rgba(91,141,239,0.15); transform: translateY(-4px); }
+.pricing-featured {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, rgba(91,141,239,0.06), rgba(52,211,153,0.03));
+  position: relative;
+}
+.pricing-featured::before {
+  content: 'Most Popular'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  background: var(--accent); color: white; font-size: 11px; font-weight: 700;
+  padding: 4px 16px; border-radius: 100px; letter-spacing: 0.05em;
+}
+.pricing-tag {
+  font-family: var(--display); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px;
+}
+.pricing-price {
+  font-family: var(--display); font-size: 3rem; font-weight: 700; color: white; margin-bottom: 12px;
+}
+.pricing-price span { font-size: 1rem; font-weight: 500; color: var(--text-dim); }
+.pricing-desc { font-size: 0.85rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 24px; }
+.pricing-list { list-style: none; margin-bottom: 32px; flex: 1; }
+.pricing-list li {
+  font-size: 0.85rem; color: var(--text-dim); padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+  padding-left: 20px; position: relative;
+}
+.pricing-list li::before {
+  content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+}
+.btn-block { width: 100%; justify-content: center; }
+
+.rental-info {
+  margin-top: 48px; padding: 24px 32px;
+  border: 1px solid var(--line); border-radius: 16px;
+  background: rgba(91,141,239,0.03);
+}
+.rental-info-inner { display: flex; align-items: center; gap: 16px; color: var(--accent); }
+.rental-info-inner p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.6; }
+.rental-info-inner strong { color: white; }
+
+@media (max-width: 1024px) { .pricing-grid { grid-template-columns: 1fr; max-width: 440px; margin-inline: auto; } }
+
 /* ========== SOLUTION VISUAL ========== */
 .aero-mockup {
   position: relative; border-radius: 20px; overflow: hidden;
