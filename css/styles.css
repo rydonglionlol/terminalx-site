@@ -510,7 +510,7 @@ button {
 .horizon {
   position: relative;
   height: 500vh;
-  background: #000;
+  background: #87CEEB;
 }
 
 .horizon__canvas {
@@ -552,9 +552,10 @@ button {
   font-size: 0.8125rem;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255,255,255,0.85);
   margin-bottom: 20px;
-  font-weight: 500;
+  font-weight: 600;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.3);
 }
 
 .horizon__title {
@@ -562,22 +563,24 @@ button {
   font-weight: 900;
   line-height: 1.0;
   letter-spacing: -0.04em;
-  color: var(--accent);
+  color: #fff;
   margin-bottom: 24px;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.25), 0 4px 40px rgba(0,0,0,0.15);
 }
 
 .horizon__desc {
   font-size: 0.9375rem;
   color: #ffffff;
   line-height: 1.8;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.3);
 }
 
-/* Horizon (black) -> About (cream) */
+/* Horizon (sky) -> About (cream) */
 .horizon::after {
   content: '';
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 200px;
+  height: 300px;
   background: linear-gradient(to bottom, transparent, var(--bg));
   pointer-events: none;
   z-index: 2;

@@ -10,140 +10,182 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 
   // === SCENE ===
   var scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x000005);
+  scene.background = new THREE.Color(0x87CEEB);
+  scene.fog = new THREE.FogExp2(0x87CEEB, 0.0008);
 
-  var camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 3000);
+  var camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 5000);
   camera.position.set(0, 0, 0);
 
   var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.0;
+  renderer.toneMappingExposure = 1.2;
 
   var composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
   var bloom = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    0.8, 0.3, 0.85
+    0.4, 0.3, 0.9
   );
   composer.addPass(bloom);
 
-  // === STARFIELD ===
-  var starGeo = new THREE.BufferGeometry();
-  var starCount = 15000;
-  var starPos = new Float32Array(starCount * 3);
-  var starColors = new Float32Array(starCount * 3);
-  var starSizes = new Float32Array(starCount);
+  // === PROCEDURAL CLOUD TEXTURE ===
+  function createCloudTexture() {
+    var size = 256;
+    var c = document.createElement('canvas');
+    c.width = size;
+    c.height = size;
+    var ctx = c.getContext('2d');
 
-  for (var i = 0; i < starCount; i++) {
-    var angle = Math.random() * Math.PI * 2;
-    var radius = 30 + Math.random() * 250;
-    starPos[i*3]     = Math.cos(angle) * radius;
-    starPos[i*3 + 1] = Math.sin(angle) * radius;
-    starPos[i*3 + 2] = -Math.random() * 2500;
+    // Draw soft cloud puffs
+    ctx.clearRect(0, 0, size, size);
+    var puffs = 8 + Math.floor(Math.random() * 6);
+    for (var i = 0; i < puffs; i++) {
+      var x = size * 0.2 + Math.random() * size * 0.6;
+      var y = size * 0.3 + Math.random() * size * 0.4;
+      var r = 30 + Math.random() * 50;
+      var grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+      grad.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+      grad.addColorStop(0.4, 'rgba(255, 255, 255, 0.4)');
+      grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(x - r, y - r, r * 2, r * 2);
+    }
 
-    // Blue-tinted stars for TerminalX brand
-    var temp = Math.random();
-    if (temp < 0.5) { starColors[i*3] = 0.8; starColors[i*3+1] = 0.9; starColors[i*3+2] = 1; }
-    else if (temp < 0.75) { starColors[i*3] = 0.36; starColors[i*3+1] = 0.55; starColors[i*3+2] = 0.94; }
-    else if (temp < 0.9) { starColors[i*3] = 1; starColors[i*3+1] = 1; starColors[i*3+2] = 1; }
-    else { starColors[i*3] = 0.2; starColors[i*3+1] = 0.83; starColors[i*3+2] = 0.6; }
-
-    starSizes[i] = Math.random() * 2.5 + 0.5;
+    var texture = new THREE.CanvasTexture(c);
+    texture.needsUpdate = true;
+    return texture;
   }
 
-  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-  starGeo.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
-  starGeo.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
+  // === CLOUDS ===
+  var clouds = [];
+  var cloudCount = 60;
 
-  var starMat = new THREE.ShaderMaterial({
+  for (var i = 0; i < cloudCount; i++) {
+    var cloudTex = createCloudTexture();
+    var cloudMat = new THREE.SpriteMaterial({
+      map: cloudTex,
+      transparent: true,
+      opacity: 0.5 + Math.random() * 0.35,
+      depthWrite: false,
+      fog: true
+    });
+    var cloud = new THREE.Sprite(cloudMat);
+
+    // Scale clouds to be large and flat
+    var scaleX = 80 + Math.random() * 160;
+    var scaleY = 30 + Math.random() * 50;
+    cloud.scale.set(scaleX, scaleY, 1);
+
+    // Distribute clouds in a wide cylinder around the flight path
+    var angle = Math.random() * Math.PI * 2;
+    var radius = 40 + Math.random() * 200;
+    cloud.position.set(
+      Math.cos(angle) * radius,
+      -20 + Math.random() * 80,
+      -Math.random() * 2500
+    );
+
+    // Slight random drift speed
+    cloud.userData.driftX = (Math.random() - 0.5) * 0.02;
+    cloud.userData.driftY = (Math.random() - 0.5) * 0.005;
+
+    scene.add(cloud);
+    clouds.push(cloud);
+  }
+
+  // === SMALLER WISPY CLOUDS (particles) ===
+  var wispGeo = new THREE.BufferGeometry();
+  var wispCount = 3000;
+  var wispPos = new Float32Array(wispCount * 3);
+  var wispSizes = new Float32Array(wispCount);
+  var wispAlphas = new Float32Array(wispCount);
+
+  for (var i = 0; i < wispCount; i++) {
+    var angle = Math.random() * Math.PI * 2;
+    var radius = 20 + Math.random() * 250;
+    wispPos[i * 3]     = Math.cos(angle) * radius;
+    wispPos[i * 3 + 1] = -30 + Math.random() * 100;
+    wispPos[i * 3 + 2] = -Math.random() * 2500;
+    wispSizes[i] = Math.random() * 8 + 2;
+    wispAlphas[i] = Math.random() * 0.5 + 0.1;
+  }
+
+  wispGeo.setAttribute('position', new THREE.BufferAttribute(wispPos, 3));
+  wispGeo.setAttribute('size', new THREE.BufferAttribute(wispSizes, 1));
+  wispGeo.setAttribute('alpha', new THREE.BufferAttribute(wispAlphas, 1));
+
+  var wispMat = new THREE.ShaderMaterial({
     uniforms: { time: { value: 0 } },
     vertexShader: [
       'attribute float size;',
-      'attribute vec3 color;',
-      'varying vec3 vColor;',
+      'attribute float alpha;',
       'varying float vAlpha;',
       'uniform float time;',
       'void main() {',
-      '  vColor = color;',
+      '  vAlpha = alpha * (0.6 + 0.4 * sin(time * 0.3 + position.x * 0.01 + position.z * 0.01));',
       '  vec4 mv = modelViewMatrix * vec4(position, 1.0);',
-      '  gl_PointSize = size * (150.0 / -mv.z);',
+      '  gl_PointSize = size * (200.0 / -mv.z);',
       '  gl_Position = projectionMatrix * mv;',
-      '  vAlpha = 0.5 + 0.5 * sin(time * 1.5 + position.x * 0.05 + position.y * 0.05);',
       '}'
     ].join('\n'),
     fragmentShader: [
-      'varying vec3 vColor;',
       'varying float vAlpha;',
       'void main() {',
       '  float d = length(gl_PointCoord - vec2(0.5));',
       '  if (d > 0.5) discard;',
-      '  float glow = 1.0 - smoothstep(0.0, 0.5, d);',
-      '  gl_FragColor = vec4(vColor, glow * vAlpha);',
+      '  float soft = 1.0 - smoothstep(0.0, 0.5, d);',
+      '  gl_FragColor = vec4(1.0, 1.0, 1.0, soft * soft * vAlpha);',
       '}'
     ].join('\n'),
     transparent: true,
-    blending: THREE.AdditiveBlending,
     depthWrite: false
   });
 
-  var stars = new THREE.Points(starGeo, starMat);
-  scene.add(stars);
+  var wisps = new THREE.Points(wispGeo, wispMat);
+  scene.add(wisps);
 
-  // === MINI GALAXIES ===
-  var galaxies = [];
-  for (var g = 0; g < 6; g++) {
-    var gCount = 800;
-    var gGeo = new THREE.BufferGeometry();
-    var gPos = new Float32Array(gCount * 3);
-    var gCol = new Float32Array(gCount * 3);
-    // Blue-purple tint for TerminalX brand
-    var tint = new THREE.Color().setHSL(0.6 + Math.random() * 0.15, 0.7, 0.65);
-    for (var p = 0; p < gCount; p++) {
-      var arm = Math.floor(Math.random() * 3);
-      var dist = Math.random() * 20;
-      var spin = dist * 0.4 + arm * (Math.PI * 2 / 3);
-      var scatter = (1 - dist / 20) * 3;
-      gPos[p*3]     = Math.cos(spin) * dist + (Math.random() - 0.5) * scatter;
-      gPos[p*3 + 1] = (Math.random() - 0.5) * scatter * 0.3;
-      gPos[p*3 + 2] = Math.sin(spin) * dist + (Math.random() - 0.5) * scatter;
-      var bright = 1 - dist / 25;
-      gCol[p*3]     = tint.r * bright;
-      gCol[p*3 + 1] = tint.g * bright;
-      gCol[p*3 + 2] = tint.b * bright;
-    }
-    gGeo.setAttribute('position', new THREE.BufferAttribute(gPos, 3));
-    gGeo.setAttribute('color', new THREE.BufferAttribute(gCol, 3));
-    var gMat = new THREE.PointsMaterial({
-      size: 0.6,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.8,
-      blending: THREE.AdditiveBlending,
-      sizeAttenuation: true,
-      depthWrite: false
-    });
-    var galaxy = new THREE.Points(gGeo, gMat);
-    galaxy.position.set(
-      (Math.random() - 0.5) * 200,
-      (Math.random() - 0.5) * 80,
-      -300 - g * 300
-    );
-    galaxy.rotation.x = Math.random() * Math.PI;
-    galaxy.rotation.y = Math.random() * Math.PI;
-    galaxy.userData.spinSpeed = 0.05 + Math.random() * 0.1;
-    scene.add(galaxy);
-    galaxies.push(galaxy);
-  }
+  // === SUN ===
+  // Bright golden sun at the end of the path
+  var sunGeo = new THREE.SphereGeometry(8, 32, 32);
+  var sunMat = new THREE.MeshBasicMaterial({ color: 0xFFDD44 });
+  var sun = new THREE.Mesh(sunGeo, sunMat);
+  sun.position.set(0, 40, -2200);
+  scene.add(sun);
 
-  // === CENTRAL LIGHT ===
-  var light = new THREE.Mesh(
-    new THREE.SphereGeometry(5, 32, 32),
-    new THREE.MeshBasicMaterial({ color: 0x5b8def })
-  );
-  light.position.set(0, 0, -2200);
-  scene.add(light);
+  // Sun glow (large transparent sprite)
+  var glowCanvas = document.createElement('canvas');
+  glowCanvas.width = 256;
+  glowCanvas.height = 256;
+  var glowCtx = glowCanvas.getContext('2d');
+  var glowGrad = glowCtx.createRadialGradient(128, 128, 0, 128, 128, 128);
+  glowGrad.addColorStop(0, 'rgba(255, 230, 100, 1)');
+  glowGrad.addColorStop(0.15, 'rgba(255, 220, 80, 0.8)');
+  glowGrad.addColorStop(0.4, 'rgba(255, 200, 50, 0.3)');
+  glowGrad.addColorStop(0.7, 'rgba(255, 180, 30, 0.08)');
+  glowGrad.addColorStop(1, 'rgba(255, 160, 0, 0)');
+  glowCtx.fillStyle = glowGrad;
+  glowCtx.fillRect(0, 0, 256, 256);
+
+  var glowTex = new THREE.CanvasTexture(glowCanvas);
+  var glowMat = new THREE.SpriteMaterial({
+    map: glowTex,
+    transparent: true,
+    opacity: 0.7,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending
+  });
+  var sunGlow = new THREE.Sprite(glowMat);
+  sunGlow.scale.set(200, 200, 1);
+  sunGlow.position.copy(sun.position);
+  scene.add(sunGlow);
+
+  // === AMBIENT LIGHT for slight scene illumination ===
+  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+  var dirLight = new THREE.DirectionalLight(0xFFEECC, 1.0);
+  dirLight.position.set(0, 40, -2200);
+  scene.add(dirLight);
 
   // === SCROLL ===
   var scrollProgress = 0;
@@ -159,19 +201,30 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
     var sH = section.offsetHeight - window.innerHeight;
     scrollProgress = Math.max(0, Math.min(1, -rect.top / sH));
 
+    // Camera flies forward along z
     camera.position.z = -scrollProgress * 2000;
-    camera.position.y = Math.sin(scrollProgress * Math.PI) * 10;
-    camera.position.x = Math.sin(scrollProgress * Math.PI * 2) * 5;
+    camera.position.y = 20 + Math.sin(scrollProgress * Math.PI) * 15;
+    camera.position.x = Math.sin(scrollProgress * Math.PI * 2) * 8;
 
-    camera.lookAt(camera.position.x * 0.5, camera.position.y * 0.5, camera.position.z - 200);
+    camera.lookAt(camera.position.x * 0.3, camera.position.y * 0.8, camera.position.z - 200);
 
-    scene.background.setRGB(0, 0, 0);
+    // Sky color shifts from bright blue to golden near the sun
+    var skyR = 0.53 + scrollProgress * 0.47;
+    var skyG = 0.81 - scrollProgress * 0.15;
+    var skyB = 0.92 - scrollProgress * 0.45;
+    scene.background.setRGB(skyR, skyG, skyB);
+    scene.fog.color.setRGB(skyR, skyG, skyB);
 
-    bloom.strength = 0.8 + scrollProgress * 1.5;
+    // Bloom ramps up near the sun
+    bloom.strength = 0.3 + scrollProgress * 0.8;
 
-    var lightScale = 1 + scrollProgress * scrollProgress * 15;
-    light.scale.set(lightScale, lightScale, lightScale);
+    // Sun grows as you approach
+    var sunScale = 1 + scrollProgress * scrollProgress * 12;
+    sun.scale.set(sunScale, sunScale, sunScale);
+    sunGlow.scale.set(200 + scrollProgress * 400, 200 + scrollProgress * 400, 1);
+    sunGlow.material.opacity = 0.5 + scrollProgress * 0.5;
 
+    // Text overlay fading
     var textEls = document.querySelectorAll('.horizon__section');
     textEls.forEach(function(el, i) {
       var t = textTimings[i];
@@ -195,14 +248,17 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
     requestAnimationFrame(animate);
     var time = performance.now() * 0.001;
 
-    starMat.uniforms.time.value = time;
+    wispMat.uniforms.time.value = time;
 
-    galaxies.forEach(function(gal) {
-      gal.rotation.y += gal.userData.spinSpeed * 0.01;
+    // Drift clouds slowly
+    clouds.forEach(function(cloud) {
+      cloud.position.x += cloud.userData.driftX;
+      cloud.position.y += cloud.userData.driftY;
     });
 
-    camera.position.x += Math.sin(time * 0.3) * 0.02;
-    camera.position.y += Math.cos(time * 0.25) * 0.015;
+    // Subtle camera sway
+    camera.position.x += Math.sin(time * 0.2) * 0.015;
+    camera.position.y += Math.cos(time * 0.15) * 0.01;
 
     composer.render();
   }
