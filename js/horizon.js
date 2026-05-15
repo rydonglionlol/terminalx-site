@@ -1,7 +1,4 @@
 import * as THREE from 'three';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
 (function() {
   var canvas = document.getElementById('horizon-canvas');
@@ -22,13 +19,8 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.2;
 
-  var composer = new EffectComposer(renderer);
-  composer.addPass(new RenderPass(scene, camera));
-  var bloom = new UnrealBloomPass(
-    new THREE.Vector2(window.innerWidth, window.innerHeight),
-    0.4, 0.3, 0.9
-  );
-  composer.addPass(bloom);
+  // No bloom — keep clouds and sky natural
+  var useComposer = false;
 
   // === PROCEDURAL CLOUD TEXTURE ===
   function createCloudTexture() {
@@ -215,9 +207,6 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
     scene.background.setRGB(skyR, skyG, skyB);
     scene.fog.color.setRGB(skyR, skyG, skyB);
 
-    // Bloom ramps up near the sun
-    bloom.strength = 0.3 + scrollProgress * 0.8;
-
     // Sun grows as you approach
     var sunScale = 1 + scrollProgress * scrollProgress * 12;
     sun.scale.set(sunScale, sunScale, sunScale);
@@ -260,7 +249,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
     camera.position.x += Math.sin(time * 0.2) * 0.015;
     camera.position.y += Math.cos(time * 0.15) * 0.01;
 
-    composer.render();
+    renderer.render(scene, camera);
   }
   animate();
 
@@ -269,6 +258,5 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    composer.setSize(window.innerWidth, window.innerHeight);
   });
 })();
