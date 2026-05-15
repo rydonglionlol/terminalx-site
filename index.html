@@ -1,573 +1,369 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TerminalX | Aero - AR Airport Navigation</title>
-    <meta name="description" content="Aero by TerminalX - Smart AR glasses that guide you through any airport.">
-    <meta name="theme-color" content="#0a0a0f">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TerminalX | Aero - AR Airport Navigation</title>
+  <meta name="description" content="Aero by TerminalX - Smart AR glasses that guide you through any airport." />
+  <meta name="theme-color" content="#0a0a0f" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9992;</text></svg>" />
+  <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
 </head>
 <body>
-    <!-- Password Gate -->
-    <div id="password-gate" style="position:fixed;inset:0;z-index:99999;background:#0a0a0f;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;">
-        <div style="text-align:center;max-width:360px;padding:24px;">
-            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#5b8def" stroke-width="1.5" stroke-linejoin="round" style="margin-bottom:24px;"><path d="M4 12 L12 6 L20 12 L12 18Z"/></svg>
-            <h2 style="color:white;font-family:'Space Grotesk',sans-serif;font-size:1.5rem;margin-bottom:8px;">TerminalX</h2>
-            <p style="color:#8a8780;font-size:0.85rem;margin-bottom:24px;">Enter password to continue</p>
-            <input id="pw-input" type="password" placeholder="Password" autofocus
-                style="width:100%;padding:14px 20px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:white;font-size:14px;outline:none;margin-bottom:12px;font-family:inherit;">
-            <button id="pw-btn"
-                style="width:100%;padding:14px;border-radius:12px;border:none;background:#5b8def;color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">
-                Enter
-            </button>
-            <p id="pw-error" style="color:#fb7185;font-size:12px;margin-top:10px;display:none;">Wrong password</p>
-        </div>
+  <!-- Password Gate -->
+  <div id="password-gate">
+    <div class="pw-inner">
+      <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#5b8def" stroke-width="1.5" stroke-linejoin="round"><path d="M4 12 L12 6 L20 12 L12 18Z"/></svg>
+      <h2 class="pw-title">TerminalX</h2>
+      <p class="pw-sub">Enter password to continue</p>
+      <input id="pw-input" type="password" placeholder="Password" autofocus />
+      <button id="pw-btn">Enter</button>
+      <p id="pw-error">Wrong password</p>
     </div>
-    <script>
-    (function(){
-        if(sessionStorage.getItem('tx_auth')==='1'){document.getElementById('password-gate').style.display='none';return;}
-        document.getElementById('pw-btn').onclick=check;
-        document.getElementById('pw-input').onkeydown=function(e){if(e.key==='Enter')check();};
-        function check(){
-            if(document.getElementById('pw-input').value==='crewl'){
-                sessionStorage.setItem('tx_auth','1');
-                document.getElementById('password-gate').style.display='none';
-            }else{
-                document.getElementById('pw-error').style.display='block';
-                document.getElementById('pw-input').style.borderColor='#fb7185';
-            }
-        }
-    })();
-    </script>
+  </div>
+  <script>
+  (function(){
+    if(sessionStorage.getItem('tx_auth')==='1'){document.getElementById('password-gate').style.display='none';return;}
+    document.getElementById('pw-btn').onclick=check;
+    document.getElementById('pw-input').onkeydown=function(e){if(e.key==='Enter')check();};
+    function check(){
+      if(document.getElementById('pw-input').value==='crewl'){
+        sessionStorage.setItem('tx_auth','1');
+        document.getElementById('password-gate').style.display='none';
+      }else{
+        document.getElementById('pw-error').style.display='block';
+        document.getElementById('pw-input').style.borderColor='#fb7185';
+      }
+    }
+  })();
+  </script>
 
-    <!-- Loader -->
-    <div class="loader" id="loader">
-        <div class="loader-inner">
-            <div class="loader-logo">
-                <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 12 L12 6 L20 12 L12 18Z"/></svg>
-            </div>
-            <div class="loader-bar"><div class="loader-fill"></div></div>
-            <span class="loader-text">TERMINALX</span>
-        </div>
+  <!-- Custom Cursor -->
+  <div class="cursor-dot" id="cursor-dot"></div>
+  <div class="cursor-ring" id="cursor-ring"></div>
+
+  <!-- Particle Intro -->
+  <div class="particle-intro" id="particle-intro">
+    <canvas id="particle-canvas"></canvas>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav" id="nav">
+    <div class="nav__inner">
+      <a href="/" class="nav__logo">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 12 L12 6 L20 12 L12 18Z"/></svg>
+        <span class="nav__logo-text">TERMINALX</span>
+      </a>
+      <div class="nav__links" id="nav-links">
+        <a href="#glasses" class="nav__link">The Glasses</a>
+        <a href="#features" class="nav__link">Features</a>
+        <a href="#pricing" class="nav__link">Pricing</a>
+        <a href="https://terminalx-aero.vercel.app" class="nav__link nav__link--cta" target="_blank">Try Aero &rarr;</a>
+      </div>
+      <button class="nav__toggle" id="nav-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+      </button>
     </div>
+  </nav>
 
-    <!-- Custom Cursor -->
-    <div class="cursor-dot" id="cursor-dot"></div>
-    <div class="cursor-follower" id="cursor-follower"></div>
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#glasses" class="mobile-menu__link">The Glasses</a>
+    <a href="#features" class="mobile-menu__link">Features</a>
+    <a href="#pricing" class="mobile-menu__link">Pricing</a>
+    <a href="#team" class="mobile-menu__link">Team</a>
+    <a href="https://terminalx-aero.vercel.app" class="mobile-menu__link" target="_blank">Try Aero &rarr;</a>
+  </div>
 
-    <!-- Navigation -->
-    <nav class="nav" id="nav">
-        <div class="nav-inner">
-            <a href="#" class="nav-logo magnetic">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 12 L12 6 L20 12 L12 18Z"/></svg>
-                <span>TERMINALX</span>
-            </a>
-            <div class="nav-links">
-                <a href="#glasses" class="nav-link">The Glasses</a>
-                <a href="#problem" class="nav-link">Problem</a>
-                <a href="#features" class="nav-link">Features</a>
-                <a href="#pricing" class="nav-link">Pricing</a>
-                <a href="#team" class="nav-link">Team</a>
-            </div>
-            <div class="nav-right">
-                <a href="https://terminalx-aero.vercel.app" target="_blank" class="nav-cta magnetic">Try Aero</a>
-                <button class="nav-menu-btn magnetic" id="menu-btn"><span></span><span></span></button>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Full Screen Menu -->
-    <div class="menu-overlay" id="menu-overlay">
-        <div class="menu-content">
-            <a href="#glasses" class="menu-link">The Glasses</a>
-            <a href="#problem" class="menu-link">The Problem</a>
-            <a href="#features" class="menu-link">Features</a>
-            <a href="#process" class="menu-link">How It Works</a>
-            <a href="#pricing" class="menu-link">Pricing</a>
-            <a href="#team" class="menu-link">Team</a>
-        </div>
+  <!-- Hero Section -->
+  <section class="hero" id="hero">
+    <canvas class="hero__gradient" id="hero-gradient"></canvas>
+    <div class="container hero__content">
+      <h1 class="hero__title">
+        <span class="hero__line">
+          <span class="hero__word">Navigate any</span>
+        </span>
+        <span class="hero__line">
+          <span class="hero__word hero__word--serif"><em>airport, effortlessly.</em></span>
+        </span>
+      </h1>
+      <p class="hero__subtitle reveal">
+        Smart AR glasses you rent at the airport. Scan your boarding pass, follow holographic arrows, and ask the AI anything &mdash; all hands-free.
+      </p>
+      <div class="hero__actions reveal">
+        <a href="https://terminalx-aero.vercel.app" target="_blank" class="hero__link">Try Aero &rarr;</a>
+        <a href="#glasses" class="hero__link hero__link--muted">Learn More &darr;</a>
+      </div>
     </div>
-
-    <!-- Hero Section -->
-    <section class="hero" id="hero">
-        <div class="hero-bg">
-            <img src="https://images.unsplash.com/photo-1436491865332-7a61a109db05?w=1920&q=80" alt="Airport terminal" class="hero-img">
-            <div class="hero-overlay"></div>
-        </div>
-        <div class="hero-content">
-            <div class="hero-badge reveal-up">
-                <span class="hero-badge-dot"></span>
-                Introducing Aero
-            </div>
-            <h1 class="hero-title">
-                <span class="title-line"><span class="title-word">Navigate</span></span>
-                <span class="title-line"><span class="title-word">Any Airport</span></span>
-                <span class="title-line accent"><span class="title-word">Effortlessly</span></span>
-            </h1>
-            <p class="hero-sub reveal-up">Smart AR glasses you rent at the airport. Scan your boarding pass, follow holographic arrows, and ask the AI anything — all hands-free.</p>
-        </div>
-        <div class="hero-scroll">
-            <div class="scroll-line"></div>
-            <span>Scroll</span>
-        </div>
-        <div class="hero-bottom">
-            <div class="hero-stat reveal-up">
-                <span class="hero-stat-num">3.5B</span>
-                <span class="hero-stat-label">Airport passengers yearly</span>
-            </div>
-            <div class="hero-stat reveal-up" data-delay="1">
-                <span class="hero-stat-num">72%</span>
-                <span class="hero-stat-label">Get stressed navigating airports</span>
-            </div>
-            <div class="hero-stat reveal-up" data-delay="2">
-                <span class="hero-stat-num">23 min</span>
-                <span class="hero-stat-label">Average time lost finding gates</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- Marquee -->
-    <div class="marquee-section">
-        <div class="marquee-track">
-            <div class="marquee-content">
-                <span>AR Navigation</span><span class="dot"></span>
-                <span>Voice Assistant</span><span class="dot"></span>
-                <span>Boarding Pass Scanner</span><span class="dot"></span>
-                <span>Indoor Mapping</span><span class="dot"></span>
-                <span>Smart Glasses</span><span class="dot"></span>
-                <span>AI Powered</span><span class="dot"></span>
-                <span>Hands Free</span><span class="dot"></span>
-                <span>Gate Finder</span><span class="dot"></span>
-                <span>AR Navigation</span><span class="dot"></span>
-                <span>Voice Assistant</span><span class="dot"></span>
-                <span>Boarding Pass Scanner</span><span class="dot"></span>
-                <span>Indoor Mapping</span><span class="dot"></span>
-                <span>Smart Glasses</span><span class="dot"></span>
-                <span>AI Powered</span><span class="dot"></span>
-                <span>Hands Free</span><span class="dot"></span>
-                <span>Gate Finder</span><span class="dot"></span>
-            </div>
-        </div>
+    <div class="hero__scroll">
+      <span class="hero__scroll-line"></span>
+      <span class="hero__scroll-text">Scroll</span>
     </div>
+  </section>
 
-    <!-- The Glasses -->
-    <section class="section" id="glasses">
-        <div class="container">
-            <div class="section-label reveal-up">01 / The Glasses</div>
-            <div class="split-layout">
-                <div class="split-left">
-                    <h2 class="section-title reveal-text">Meet <em>Aero</em> glasses</h2>
-                    <p class="section-body reveal-up">Aero is a pair of lightweight AR smart glasses designed specifically for airport navigation. Slip them on when you arrive, and the entire terminal comes alive with directions.</p>
-                    <p class="section-body reveal-up">A built-in camera scans your boarding pass automatically. A transparent display projects glowing green arrows onto the ground ahead of you. A microphone listens for your voice — just say "Hey Aero" and ask anything.</p>
-                    <div class="glasses-specs reveal-up">
-                        <div class="spec-item">
-                            <span class="spec-val">42g</span>
-                            <span class="spec-label">Ultra-light frame</span>
-                        </div>
-                        <div class="spec-item">
-                            <span class="spec-val">8hr</span>
-                            <span class="spec-label">Battery life</span>
-                        </div>
-                        <div class="spec-item">
-                            <span class="spec-val">AR+AI</span>
-                            <span class="spec-label">Built-in tech</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="split-right reveal-up">
-                    <div class="glasses-visual">
-                        <img src="https://images.unsplash.com/photo-1574169208507-84376144848b?w=800&q=80" alt="AR glasses concept" class="glasses-img">
-                        <div class="glasses-overlay">
-                            <div class="glasses-hud-item glasses-hud-1">
-                                <span>&#9992; Gate B24</span>
-                            </div>
-                            <div class="glasses-hud-item glasses-hud-2">
-                                <span>3 min away</span>
-                            </div>
-                            <div class="glasses-hud-item glasses-hud-3">
-                                <span>&#127908; "Hey Aero..."</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="glasses-features-row">
-                <div class="gf-card reveal-up">
-                    <div class="gf-icon">
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    </div>
-                    <h4>Transparent AR Display</h4>
-                    <p>See the real world with holographic overlays — arrows, signs, and info floating in your vision.</p>
-                </div>
-                <div class="gf-card reveal-up" data-delay="1">
-                    <div class="gf-icon">
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
-                    </div>
-                    <h4>Built-in Microphone</h4>
-                    <p>Always-listening wake word: say "Hey Aero" and ask about bathrooms, food, WiFi, or your gate.</p>
-                </div>
-                <div class="gf-card reveal-up" data-delay="2">
-                    <div class="gf-icon">
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 15h0M2 9.5h20"/></svg>
-                    </div>
-                    <h4>Barcode Camera</h4>
-                    <p>Auto-scans boarding passes — PDF417, QR, and all airline formats detected in under a second.</p>
-                </div>
-                <div class="gf-card reveal-up" data-delay="3">
-                    <div class="gf-icon">
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-                    </div>
-                    <h4>Step-by-Step Nav</h4>
-                    <p>3D green arrows on the ground — straight, turn left, turn right. Changes with every step you take.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Photo Break 1 -->
-    <div class="photo-break">
-        <img src="https://images.unsplash.com/photo-1474302770737-173ee21bab63?w=1920&q=80" alt="Airplane at airport gate" class="photo-break-img">
-        <div class="photo-break-overlay"></div>
+  <!-- Horizon — Three.js scroll-through scene -->
+  <section class="horizon" id="horizon">
+    <canvas class="horizon__canvas" id="horizon-canvas"></canvas>
+    <div class="horizon__overlay">
+      <div class="horizon__section horizon__section--1">
+        <p class="horizon__eyebrow">Airport navigation, reimagined</p>
+        <h2 class="horizon__title">From gate<br/>to gate.</h2>
+        <p class="horizon__desc">Aero turns the chaos of airports into a guided experience &mdash; scan your pass, follow the arrows, and never get lost again.</p>
+      </div>
+      <div class="horizon__section horizon__section--2">
+        <h2 class="horizon__title">Beyond<br/>the terminal.</h2>
+        <p class="horizon__desc">3D holographic arrows on the ground. Voice AI that answers anything. A mini-map in the corner of your vision. All hands-free.</p>
+      </div>
+      <div class="horizon__section horizon__section--3">
+        <h2 class="horizon__title">Built for<br/>every traveler.</h2>
+        <p class="horizon__desc">Whether you're rushing to a connection or exploring an unfamiliar airport &mdash; Aero adapts to your journey in real time.</p>
+      </div>
     </div>
+  </section>
 
-    <!-- The Problem -->
-    <section class="section section-alt" id="problem">
-        <div class="container">
-            <div class="section-label reveal-up">02 / The Problem</div>
-            <h2 class="section-title-center reveal-text">Airports are <em>broken</em></h2>
-            <p class="section-subtitle reveal-up">Millions of travelers get lost, miss gates, and waste time every single day.</p>
-            <div class="stats-row">
-                <div class="stat-block reveal-up">
-                    <span class="stat-number" data-count="1.2" data-suffix="M" data-decimals="1">0</span>
-                    <span class="stat-label">Passengers miss flights yearly due to navigation confusion</span>
-                </div>
-                <div class="stat-block reveal-up" data-delay="1">
-                    <span class="stat-number" data-count="67" data-suffix="%">0</span>
-                    <span class="stat-label">Of first-time travelers feel overwhelmed in large airports</span>
-                </div>
-                <div class="stat-block reveal-up" data-delay="2">
-                    <span class="stat-number" data-count="45" data-suffix=" min">0</span>
-                    <span class="stat-label">Average time spent searching for amenities and gates</span>
-                </div>
-            </div>
+  <!-- About — Container Scroll (The Glasses) -->
+  <section class="about" id="glasses">
+    <div class="about__scroll" id="about-scroll">
+      <div class="about__header" id="about-header">
+        <p class="about__eyebrow">One device. Three superpowers.</p>
+        <h2 class="about__title">AR display.<br/>Voice AI.<br/><em>Boarding scanner.</em></h2>
+        <p class="about__subtitle">Aero combines everything a traveler needs into a single pair of lightweight glasses &mdash; no phone, no app, no setup required.</p>
+      </div>
+      <div class="about__card" id="about-card">
+        <div class="about__card-inner">
+          <img src="https://images.unsplash.com/photo-1574169208507-84376144848b?w=1200&q=80" alt="AR Glasses Concept" class="about__image" />
         </div>
-    </section>
-
-    <!-- Features -->
-    <section class="section" id="features">
-        <div class="container">
-            <div class="section-label reveal-up">03 / Features</div>
-            <h2 class="section-title-center reveal-text">Everything built <em>in</em></h2>
-            <div class="features-grid">
-                <div class="feature-card reveal-up">
-                    <div class="feature-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg></div>
-                    <h3>3D AR Arrows</h3>
-                    <p>Green holographic arrows projected onto the ground. Straight, curved turns, arrival markers — they change with each step.</p>
-                </div>
-                <div class="feature-card reveal-up" data-delay="1">
-                    <div class="feature-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-                    <h3>"Hey Aero" Voice AI</h3>
-                    <p>Always-listening wake word. Powered by Gemini AI and ElevenLabs voice. Ask anything — bathrooms, coffee, WiFi, gates.</p>
-                </div>
-                <div class="feature-card reveal-up" data-delay="2">
-                    <div class="feature-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></div>
-                    <h3>Instant Pass Scanner</h3>
-                    <p>Point the glasses at any boarding pass barcode. Flight, gate, seat, boarding time — appears in your view instantly.</p>
-                </div>
-                <div class="feature-card reveal-up">
-                    <div class="feature-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-                    <h3>Live Mini Map</h3>
-                    <p>Google Maps embedded in the corner of your vision during navigation. Real-time GPS positioning in the terminal.</p>
-                </div>
-                <div class="feature-card reveal-up" data-delay="1">
-                    <div class="feature-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-                    <h3>Any Airport</h3>
-                    <p>Works in all 17,000+ commercial airports worldwide. From LAX to Dubai to Tokyo — Aero adapts instantly.</p>
-                </div>
-                <div class="feature-card reveal-up" data-delay="2">
-                    <div class="feature-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-                    <h3>Sound Alerts</h3>
-                    <p>Chime when navigation starts, success sound when you arrive. Turn-by-turn voice directions at every step.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Photo Break 2 -->
-    <div class="photo-break">
-        <img src="https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=1920&q=80" alt="Planes at airport terminal" class="photo-break-img">
-        <div class="photo-break-overlay"></div>
+      </div>
+      <div class="about__pills">
+        <span class="about__pill">AR Navigation</span>
+        <span class="about__pill">Voice Assistant</span>
+        <span class="about__pill">Pass Scanner</span>
+        <span class="about__pill">Mini Map</span>
+        <span class="about__pill">42g Ultra-Light</span>
+        <span class="about__pill">8hr Battery</span>
+      </div>
     </div>
+  </section>
 
-    <!-- Interactive Scroll Timeline -->
-    <section class="timeline-section" id="process">
-        <div class="timeline-sticky">
-            <div class="timeline-header">
-                <div class="section-label" style="color: var(--accent); margin-bottom: 0;">04 / Your Journey</div>
-            </div>
-            <div class="timeline-progress-bar">
-                <div class="timeline-progress-fill" id="timeline-fill"></div>
-            </div>
-            <div class="timeline-viewport">
-                <!-- Step 1 -->
-                <div class="tl-card" data-step="0">
-                    <div class="tl-card-inner">
-                        <div class="tl-num">01</div>
-                        <div class="tl-img-wrap">
-                            <img src="https://images.unsplash.com/photo-1521727284936-cf1dbff643e8?w=600&q=80" alt="Airport rental desk" class="tl-img">
-                        </div>
-                        <h3 class="tl-title">Pick Up Your Glasses</h3>
-                        <p class="tl-desc">Walk up to any Aero rental desk in the terminal. Grab a pair of pre-charged glasses. Put them on — no setup, no account, no app download.</p>
-                        <div class="tl-tag">&#9201; Takes 30 seconds</div>
-                    </div>
-                </div>
-                <!-- Step 2 -->
-                <div class="tl-card" data-step="1">
-                    <div class="tl-card-inner">
-                        <div class="tl-num">02</div>
-                        <div class="tl-img-wrap">
-                            <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600&q=80" alt="Scanning boarding pass" class="tl-img">
-                        </div>
-                        <h3 class="tl-title">Scan Your Boarding Pass</h3>
-                        <p class="tl-desc">The built-in camera detects your boarding pass barcode automatically. Your flight, gate, seat, and boarding time appear right in your view.</p>
-                        <div class="tl-tag">&#128203; Auto-detected</div>
-                    </div>
-                </div>
-                <!-- Step 3 -->
-                <div class="tl-card" data-step="2">
-                    <div class="tl-card-inner">
-                        <div class="tl-num">03</div>
-                        <div class="tl-img-wrap">
-                            <img src="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=600&q=80" alt="AR navigation arrows" class="tl-img">
-                        </div>
-                        <h3 class="tl-title">Follow the Arrows</h3>
-                        <p class="tl-desc">3D green holographic arrows appear on the ground ahead of you. They curve around corners, change direction at turns, and guide you step-by-step to your gate.</p>
-                        <div class="tl-tag">&#10132; Real-time AR</div>
-                    </div>
-                </div>
-                <!-- Step 4 -->
-                <div class="tl-card" data-step="3">
-                    <div class="tl-card-inner">
-                        <div class="tl-num">04</div>
-                        <div class="tl-img-wrap">
-                            <img src="https://images.unsplash.com/photo-1540339832862-474599807836?w=600&q=80" alt="Voice assistant" class="tl-img">
-                        </div>
-                        <h3 class="tl-title">Ask Aero Anything</h3>
-                        <p class="tl-desc">"Hey Aero, where's the nearest coffee shop?" — get instant spoken answers. Bathrooms, restaurants, WiFi, lounges — Aero knows it all.</p>
-                        <div class="tl-tag">&#127908; Voice AI</div>
-                    </div>
-                </div>
-                <!-- Step 5 -->
-                <div class="tl-card" data-step="4">
-                    <div class="tl-card-inner">
-                        <div class="tl-num">05</div>
-                        <div class="tl-img-wrap">
-                            <img src="https://images.unsplash.com/photo-1436491865332-7a61a109db05?w=600&q=80" alt="Return desk" class="tl-img">
-                        </div>
-                        <h3 class="tl-title">Return & Board</h3>
-                        <p class="tl-desc">Arrived at your gate. Drop the glasses at the nearest return desk — they're everywhere. The glasses get cleaned, charged, and recycled for the next traveler.</p>
-                        <div class="tl-tag">&#9992; Bon voyage!</div>
-                    </div>
-                </div>
-            </div>
+  <!-- Feature Wheel -->
+  <section class="wheel" id="wheel">
+    <div class="wheel__sticky">
+      <div class="wheel__glow-left"></div>
+      <div class="wheel__glow-right"></div>
+      <div class="wheel__left">
+        <div class="wheel__name" data-wheel="0">Scan</div>
+        <div class="wheel__name" data-wheel="1">Navigate</div>
+        <div class="wheel__name" data-wheel="2">Ask</div>
+        <div class="wheel__name" data-wheel="3">Explore</div>
+        <div class="wheel__name" data-wheel="4">Arrive</div>
+        <div class="wheel__name" data-wheel="5">Return</div>
+      </div>
+      <div class="wheel__right">
+        <div class="wheel__info" id="wheel-info">
+          <h3 class="wheel__info-title">Scan</h3>
+          <p class="wheel__info-desc">Point the glasses at any boarding pass. Flight, gate, seat, and boarding time appear in your view instantly.</p>
         </div>
-    </section>
-
-    <!-- Marquee 2 -->
-    <div class="marquee-section marquee-reverse">
-        <div class="marquee-track">
-            <div class="marquee-content marquee-content-reverse">
-                <span>React</span><span class="dot"></span>
-                <span>Vite</span><span class="dot"></span>
-                <span>ElevenLabs</span><span class="dot"></span>
-                <span>Gemini AI</span><span class="dot"></span>
-                <span>Web Speech API</span><span class="dot"></span>
-                <span>BarcodeDetector</span><span class="dot"></span>
-                <span>Google Maps</span><span class="dot"></span>
-                <span>Tailwind CSS</span><span class="dot"></span>
-                <span>React</span><span class="dot"></span>
-                <span>Vite</span><span class="dot"></span>
-                <span>ElevenLabs</span><span class="dot"></span>
-                <span>Gemini AI</span><span class="dot"></span>
-                <span>Web Speech API</span><span class="dot"></span>
-                <span>BarcodeDetector</span><span class="dot"></span>
-                <span>Google Maps</span><span class="dot"></span>
-                <span>Tailwind CSS</span><span class="dot"></span>
-            </div>
-        </div>
+      </div>
+      <div class="wheel__progress">
+        <div class="wheel__progress-fill"></div>
+      </div>
     </div>
+  </section>
 
-    <!-- Pricing / Rental Plan -->
-    <section class="section" id="pricing">
-        <div class="container">
-            <div class="section-label reveal-up">05 / Pricing</div>
-            <h2 class="section-title-center reveal-text">Rent or <em>subscribe</em></h2>
-            <p class="section-subtitle reveal-up">Pick up a pair at any rental desk throughout the airport. Return them when you board.</p>
-            <div class="pricing-grid">
-                <div class="pricing-card reveal-up">
-                    <div class="pricing-tag">Rental</div>
-                    <div class="pricing-price">$4<span>/hr</span></div>
-                    <p class="pricing-desc">Perfect for occasional travelers. Grab a pair, use it, return it.</p>
-                    <ul class="pricing-list">
-                        <li>Pick up at any rental desk</li>
-                        <li>Full AR navigation + voice AI</li>
-                        <li>Boarding pass scanner</li>
-                        <li>Return at any desk or gate</li>
-                        <li>No account needed</li>
-                    </ul>
-                    <a href="#" class="btn btn-ghost btn-block magnetic">Rent at Airport</a>
-                </div>
-                <div class="pricing-card pricing-featured reveal-up" data-delay="1">
-                    <div class="pricing-tag">AeroPass</div>
-                    <div class="pricing-price">$9.99<span>/mo</span></div>
-                    <p class="pricing-desc">For frequent flyers. Free unlimited rentals at every airport, worldwide.</p>
-                    <ul class="pricing-list">
-                        <li>Unlimited free rentals</li>
-                        <li>Priority pickup — skip the line</li>
-                        <li>All features included</li>
-                        <li>Works at 17,000+ airports</li>
-                        <li>Saved preferences & history</li>
-                        <li>Family sharing (up to 4)</li>
-                    </ul>
-                    <a href="#" class="btn btn-primary btn-block magnetic">Get AeroPass</a>
-                </div>
-                <div class="pricing-card reveal-up" data-delay="2">
-                    <div class="pricing-tag">Business</div>
-                    <div class="pricing-price">Custom</div>
-                    <p class="pricing-desc">For airports and airlines looking to deploy Aero across terminals.</p>
-                    <ul class="pricing-list">
-                        <li>Bulk glasses deployment</li>
-                        <li>Custom branding on lenses</li>
-                        <li>Passenger analytics dashboard</li>
-                        <li>Integration with airport systems</li>
-                        <li>Dedicated support</li>
-                    </ul>
-                    <a href="#" class="btn btn-ghost btn-block magnetic">Contact Us</a>
-                </div>
-            </div>
-            <div class="rental-info reveal-up">
-                <div class="rental-info-inner">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                    <p><strong>Return desks located throughout the airport</strong> — at every gate cluster, near security, at baggage claim, and at all terminal exits. Just drop off and go.</p>
-                </div>
-            </div>
+  <!-- Section 01 — Features Timeline -->
+  <section class="section section--features" id="features">
+    <div class="container">
+      <div class="section__header reveal">
+        <span class="section__number">01</span>
+        <h2 class="section__title">Features</h2>
+      </div>
+      <div class="timeline" id="timeline-section">
+        <div class="timeline__num-fixed" id="tl-num">01</div>
+        <div class="timeline__text-fixed" id="tl-text">
+          <h3 class="timeline__title" id="tl-title">3D AR Arrows</h3>
+          <p class="timeline__desc" id="tl-desc">Green holographic arrows projected on the ground. They curve around corners and guide you step-by-step.</p>
         </div>
-    </section>
-
-    <!-- Photo Break 3 -->
-    <div class="photo-break">
-        <img src="https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=1920&q=80" alt="Airplane wing at sunset" class="photo-break-img">
-        <div class="photo-break-overlay"></div>
+        <div class="timeline__sticky">
+          <div class="timeline__images-track" id="tl-track">
+            <div class="timeline__image-wrap blurred"><img src="https://images.unsplash.com/photo-1436491865332-7a61a109db05?w=800&q=80" alt="AR Navigation" class="timeline__image" /></div>
+            <div class="timeline__image-wrap blurred"><img src="https://images.unsplash.com/photo-1521727284936-cf1dbff643e8?w=800&q=80" alt="Voice AI" class="timeline__image" /></div>
+            <div class="timeline__image-wrap blurred"><img src="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=800&q=80" alt="Boarding Scanner" class="timeline__image" /></div>
+            <div class="timeline__image-wrap blurred"><img src="https://images.unsplash.com/photo-1474302770737-173ee21bab63?w=800&q=80" alt="Live Map" class="timeline__image" /></div>
+            <div class="timeline__image-wrap blurred"><img src="https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=800&q=80" alt="Any Airport" class="timeline__image" /></div>
+            <div class="timeline__image-wrap blurred"><img src="https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=800&q=80" alt="Sound Alerts" class="timeline__image" /></div>
+          </div>
+        </div>
+      </div>
+      <script id="timeline-data" type="application/json">[
+        {"num":"01","title":"3D AR Arrows","desc":"Green holographic arrows projected on the ground. They curve around corners and guide you step-by-step to your gate."},
+        {"num":"02","title":"\"Hey Aero\" Voice AI","desc":"Always-listening wake word. Powered by Gemini AI and ElevenLabs voice. Ask anything \u2014 bathrooms, coffee, WiFi, gates."},
+        {"num":"03","title":"Instant Pass Scanner","desc":"Point the glasses at any boarding pass barcode. Flight, gate, seat, boarding time \u2014 appears in your view instantly."},
+        {"num":"04","title":"Live Mini Map","desc":"Google Maps embedded in the corner of your vision during navigation. Real-time GPS positioning in the terminal."},
+        {"num":"05","title":"Any Airport","desc":"Works in all 17,000+ commercial airports worldwide. From LAX to Dubai to Tokyo \u2014 Aero adapts instantly."},
+        {"num":"06","title":"Sound Alerts","desc":"Chime when navigation starts, success sound when you arrive. Turn-by-turn voice directions at every step."}
+      ]</script>
     </div>
+  </section>
 
-    <!-- Facts -->
-    <section class="section section-alt" id="facts">
-        <div class="container">
-            <div class="section-label reveal-up">06 / Facts</div>
-            <h2 class="section-title-center reveal-text">Why airports <em>need</em> this</h2>
-            <div class="facts-grid">
-                <div class="fact-card reveal-up">
-                    <div class="fact-icon">&#9992;</div>
-                    <h3>4.5 Billion</h3>
-                    <p>Passengers will fly annually by 2030. Airports aren't built to handle this growth.</p>
-                </div>
-                <div class="fact-card reveal-up" data-delay="1">
-                    <div class="fact-icon">&#128337;</div>
-                    <h3>$26.6 Billion</h3>
-                    <p>Lost by airlines yearly due to delayed passengers, missed connections, and confusion.</p>
-                </div>
-                <div class="fact-card reveal-up" data-delay="2">
-                    <div class="fact-icon">&#127758;</div>
-                    <h3>17,678 Airports</h3>
-                    <p>Commercial airports worldwide with outdated signage and zero digital wayfinding.</p>
-                </div>
-                <div class="fact-card reveal-up">
-                    <div class="fact-icon">&#129302;</div>
-                    <h3>$45B Market</h3>
-                    <p>The AR smart glasses market is projected to reach $45 billion by 2028.</p>
-                </div>
-                <div class="fact-card reveal-up" data-delay="1">
-                    <div class="fact-icon">&#128100;</div>
-                    <h3>Accessibility</h3>
-                    <p>Elderly and visually impaired travelers struggle most. Voice-first design helps everyone.</p>
-                </div>
-                <div class="fact-card reveal-up" data-delay="2">
-                    <div class="fact-icon">&#9889;</div>
-                    <h3>No Setup</h3>
-                    <p>Put on the glasses and go. No app to download, no account to create, no pairing needed.</p>
-                </div>
-            </div>
+  <!-- Lamp Section — Stats (Built for travelers) -->
+  <section class="lamp" id="stats">
+    <div class="lamp__glow">
+      <div class="lamp__cone lamp__cone--left"></div>
+      <div class="lamp__cone lamp__cone--right"></div>
+      <div class="lamp__blur"></div>
+      <div class="lamp__line"></div>
+      <div class="lamp__orb"></div>
+      <div class="lamp__mask"></div>
+    </div>
+    <div class="lamp__content">
+      <h2 class="lamp__title">Built for <span class="counter" data-target="17678">0</span> airports</h2>
+      <div class="lamp__stats">
+        <div class="stat">
+          <span class="stat__number counter" data-target="72">0</span><span class="stat__suffix">%</span>
+          <span class="stat__label">Travelers Stressed</span>
         </div>
-    </section>
-
-    <!-- Team -->
-    <section class="section" id="team">
-        <div class="container">
-            <div class="section-label reveal-up">07 / The Team</div>
-            <h2 class="section-title-center reveal-text">Built by <em>students</em></h2>
-            <p class="section-subtitle reveal-up">The people behind TerminalX and Aero.</p>
-            <div class="team-grid">
-                <div class="team-card reveal-up">
-                    <div class="team-avatar" style="--avatar-color: #5b8def">R</div>
-                    <h3>Ryan</h3>
-                </div>
-                <div class="team-card reveal-up" data-delay="1">
-                    <div class="team-avatar" style="--avatar-color: #34d399">W</div>
-                    <h3>William</h3>
-                </div>
-                <div class="team-card reveal-up" data-delay="2">
-                    <div class="team-avatar" style="--avatar-color: #f59e0b">E</div>
-                    <h3>Esteban</h3>
-                </div>
-                <div class="team-card reveal-up" data-delay="3">
-                    <div class="team-avatar" style="--avatar-color: #ec4899">L</div>
-                    <h3>Lizzie</h3>
-                </div>
-                <div class="team-card reveal-up" data-delay="4">
-                    <div class="team-avatar" style="--avatar-color: #8b5cf6">C</div>
-                    <h3>Chase</h3>
-                </div>
-            </div>
+        <div class="stat">
+          <span class="stat__number counter" data-target="23">0</span><span class="stat__suffix"> min</span>
+          <span class="stat__label">Lost Finding Gates</span>
         </div>
-    </section>
+      </div>
+      <p class="lamp__desc">Airports are broken. Millions get lost, miss gates, and waste time every day. Aero was designed to fix this &mdash; instant AR wayfinding for every traveler, at every airport.</p>
+    </div>
+  </section>
 
-    <!-- CTA -->
-    <section class="section cta-section">
-        <div class="container">
-            <div class="cta-block reveal-up">
-                <h2 class="cta-title">Ready to navigate<br><em>smarter?</em></h2>
-                <p class="cta-sub">Try the Aero software prototype — scan a boarding pass, navigate with AR arrows, and talk to the AI.</p>
-                <a href="https://terminalx-aero.vercel.app" target="_blank" class="btn btn-primary btn-lg magnetic">Launch Aero Prototype</a>
-            </div>
+  <!-- Pricing -->
+  <section class="section section--pricing" id="pricing">
+    <div class="container">
+      <div class="section__header reveal">
+        <span class="section__number">02</span>
+        <h2 class="section__title">Pricing</h2>
+      </div>
+      <div class="pricing__grid">
+        <div class="pricing__item reveal">
+          <h3 class="pricing__name">Rental</h3>
+          <div class="pricing__price">$4<span>/hr</span></div>
+          <p class="pricing__desc">Perfect for occasional travelers. Grab a pair, use it, return it.</p>
+          <ul class="pricing__list">
+            <li>Pick up at any rental desk</li>
+            <li>Full AR navigation + voice AI</li>
+            <li>Boarding pass scanner</li>
+            <li>Return at any desk or gate</li>
+            <li>No account needed</li>
+          </ul>
+          <a href="#" class="pricing__link">Rent at Airport &rarr;</a>
         </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-top">
-                <div class="footer-brand">
-                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 12 L12 6 L20 12 L12 18Z"/></svg>
-                    <span>TERMINALX</span>
-                </div>
-                <div class="footer-links">
-                    <a href="#glasses">Glasses</a>
-                    <a href="#features">Features</a>
-                    <a href="#pricing">Pricing</a>
-                    <a href="#team">Team</a>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 TerminalX. PBL Project.</p>
-                <p>Built with passion by Ryan, William, Esteban, Lizzie & Chase</p>
-            </div>
+        <div class="pricing__item pricing__item--featured reveal">
+          <h3 class="pricing__name">AeroPass</h3>
+          <div class="pricing__price">$9.99<span>/mo</span></div>
+          <p class="pricing__desc">For frequent flyers. Free unlimited rentals at every airport, worldwide.</p>
+          <ul class="pricing__list">
+            <li>Unlimited free rentals</li>
+            <li>Priority pickup &mdash; skip the line</li>
+            <li>All features included</li>
+            <li>Works at 17,000+ airports</li>
+            <li>Saved preferences &amp; history</li>
+            <li>Family sharing (up to 4)</li>
+          </ul>
+          <a href="#" class="pricing__link">Get AeroPass &rarr;</a>
         </div>
-    </footer>
+        <div class="pricing__item reveal">
+          <h3 class="pricing__name">Business</h3>
+          <div class="pricing__price">Custom</div>
+          <p class="pricing__desc">For airports and airlines looking to deploy Aero across terminals.</p>
+          <ul class="pricing__list">
+            <li>Bulk glasses deployment</li>
+            <li>Custom branding on lenses</li>
+            <li>Passenger analytics dashboard</li>
+            <li>Integration with airport systems</li>
+            <li>Dedicated support</li>
+          </ul>
+          <a href="#" class="pricing__link">Contact Us &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <script src="js/main.js"></script>
+  <!-- Team -->
+  <section class="section section--team" id="team">
+    <div class="container">
+      <div class="section__header reveal">
+        <span class="section__number">03</span>
+        <h2 class="section__title">The Team</h2>
+      </div>
+      <p class="team__subtitle reveal">Built by students. The people behind TerminalX and Aero.</p>
+      <div class="team__grid">
+        <div class="team__card reveal">
+          <div class="team__avatar" style="--avatar-color: #5b8def">R</div>
+          <h3>Ryan</h3>
+        </div>
+        <div class="team__card reveal">
+          <div class="team__avatar" style="--avatar-color: #34d399">W</div>
+          <h3>William</h3>
+        </div>
+        <div class="team__card reveal">
+          <div class="team__avatar" style="--avatar-color: #f59e0b">E</div>
+          <h3>Esteban</h3>
+        </div>
+        <div class="team__card reveal">
+          <div class="team__avatar" style="--avatar-color: #ec4899">L</div>
+          <h3>Lizzie</h3>
+        </div>
+        <div class="team__card reveal">
+          <div class="team__avatar" style="--avatar-color: #8b5cf6">C</div>
+          <h3>Chase</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section section--cta">
+    <div class="container">
+      <div class="cta__block reveal">
+        <h2 class="cta__title">Ready to navigate<br/><em>smarter?</em></h2>
+        <p class="cta__desc">Try the Aero software prototype &mdash; scan a boarding pass, navigate with AR arrows, and talk to the AI.</p>
+        <a href="https://terminalx-aero.vercel.app" target="_blank" class="cta__link">Launch Aero Prototype &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__left">
+          <a href="/" class="nav__logo">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 12 L12 6 L20 12 L12 18Z"/></svg>
+            <span class="nav__logo-text">TERMINALX</span>
+          </a>
+        </div>
+        <div class="footer__right">
+          <a href="#glasses" class="footer__link">Glasses</a>
+          <a href="#features" class="footer__link">Features</a>
+          <a href="#pricing" class="footer__link">Pricing</a>
+          <a href="#team" class="footer__link">Team</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>&copy; 2026 TerminalX. PBL Project. Built with passion by Ryan, William, Esteban, Lizzie &amp; Chase</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script type="module" src="js/horizon.js"></script>
 </body>
 </html>
